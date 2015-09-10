@@ -1,0 +1,240 @@
+<!doctype html>
+<html>
+<head>
+	<title>Videojuego</title>
+	<meta charset="utf-8">
+	<link href='http://fonts.googleapis.com/css?family=MedievalSharp' rel='stylesheet' type='text/css'>
+	<style>
+body{background-color:black;font-family: 'MedievalSharp', Arial;}
+#hud{width:1000px;margin:0 auto;height:80px;}
+	.hud_main{float:left;color:white;width:200px;}
+	#button_music{cursor:pointer;}
+#game_wrapper{position:relative;width:1000px;height:667px;margin:0 auto;}
+	#background{position:absolute;top:0;left:0;width:100%;z-index:0;}
+	#tower{position:absolute;top:0;left:0;width:100%;z-index:20;display:none;}
+	.build_explain{position:absolute;top:250px;left:450px;width:400px;z-index:200;background-color:rgba(0,0,0,0.85);color:white;display:none;animation:none;}
+	.build_points *{height:40px;float:right;}
+	.build_icon{position:absolute;top:300px;left:340px;width:90px;height:90px;z-index:500;-webkit-animation:intheair 1s infinite;animation:intheair 1s infinite;background-image:url('iconoconstruir.png');background-size:100%;cursor:pointer;display:none;}
+		.build_icon:hover{background-image:url('iconoconstruirhover.png');}
+		.build_icon_wrapper:hover .build_explain{display:initial;}
+	#next_turn{position:absolute;z-index:1000;bottom:0;right:0;cursor:pointer;background-color:white;margin:10px;padding:5px;}
+	@keyframes intheair{
+		0%{margin-top:10px;}
+		50%{margin-top:0px;}
+		100%{margin-top:10px;}
+	}
+	@-webkit-keyframes intheair{
+		0%{margin-top:10px;}
+		50%{margin-top:0px;}
+		100%{margin-top:10px;}
+	}
+	@keyframes appear{
+		0%{opacity:0;}
+		100%{opacity:1;}
+	}
+	@-webkit-keyframes appear{
+		0%{opacity:0;}
+		100%{opacity:1;}
+	}
+	</style>
+</head>
+<body>
+	<div id="hud">
+		<div class="hud_main" id="development">
+			<div id="display_development" style="color:white;">0</div>
+			<div id="display_development_growth">+4 / turno</div>
+		</div>		
+		<div class="hud_main" id="book">
+			<div id="display_development">
+				<p id="display_place">0%</p>
+				<p id="display_enemies">0%</p>
+				<p id="display_salvation">0%</p>
+			</div>
+		</div>
+		<div class="hud_main" id="exploration">
+			<div id="display_exploration">0% explorado</div>
+		</div>
+		<div class="hud_main" id="week">
+			<div id="display_week"></div>
+		</div>
+		<div id="button_music" style="color:white;">Apagar música</div>
+	</div>
+	<div id="game_wrapper">
+		<img id="background" src="background.jpg">
+		<img id="tower" src="tower.gif">
+		<div class="build_icon_wrapper">
+			<div class="build_icon" id="build_tower">
+			</div>
+			<div class="build_explain" id="explain_tower">
+				<div class="build_points">
+					<p>10</p>
+					<img src="iconoconstruir.png">
+				</div>
+				<p>Torreón</p>
+				<p>-40% al efecto de los ataques de los demonios de la grieta</p>
+			</div>
+		</div>
+		<div id="next_turn">Siguiente turno</div>
+	</div>
+	<audio autoplay loop id="main_music">
+		<source src="musiccut.mp3" type="audio/mpeg">
+	</audio>
+	<audio preload id="buildsound">
+		<source src="buildsound.mp3" type="audio/mpeg">
+	</audio>
+<script type="text/javascript">
+var development_available = 0;
+var development_growth = 4;
+var week = 30;
+var tower_built = false;
+document.querySelector('#display_week').innerHTML = 'Semana ' + week;
+document.querySelector('#button_music').onclick=function(){document.querySelector('#main_music').pause();}
+var tower = document.querySelector('#tower');
+document.querySelector('#build_tower').onclick = function(){
+	tower_built = true;
+	development_available = development_available - 10;
+	tower.style.display = "initial";
+	tower.style.animation = "appear 2s forwards";
+	tower.style.webkitAnimation = "appear 2s forwards";
+	document.querySelector('#explain_tower').style.display="none";
+	document.querySelector('#buildsound').play();
+	document.querySelector('#build_tower').style.display = "none";
+	document.querySelector('#display_development').innerHTML = development_available;
+
+}
+var next_turn = document.querySelector('#next_turn');
+next_turn.onclick = function(){
+	{
+		alert('has pasado de turno');
+		week--;
+		document.querySelector('#display_week').innerHTML = 'Semana ' + week;
+		development_available = development_available + development_growth;
+		document.querySelector('#display_development').innerHTML = development_available;
+		if(development_available > 9){
+			if(tower_built == false){document.querySelector('#build_tower').style.display="initial";}
+		}
+	}
+};
+
+
+var buildings = {
+	'defenses':{
+		'basecamp':{
+			'defense':0,
+			'development':0,		
+		}
+		'tower':{
+			'defense':10,
+			'development':0,		
+		},
+		'walls':{
+			'defense':10,
+			'development':0,
+		},
+		'gate':{
+			'defense':10,
+			'development':0,
+		},
+	},
+	'libraries':{
+		'librarycamp':{
+			'cost':0,
+			'defense':0,
+			'development':0,
+			'topography':3,
+			'demonology':3,
+			'convocation':3,
+		},
+		'library':{
+			'cost':10,
+			'defense':0,
+			'development':0,
+			'topography':5,
+			'demonology':5,
+			'convocation':5,
+		},
+		'topographywing':{
+			'cost':10,
+			'defense':0,
+			'development':0,
+			'topography':10,
+			'demonology':0,
+			'convocation':0,
+		},
+		'demonologywing':{
+			'cost':10,
+			'defense':0,
+			'development':0,
+			'topography':0,
+			'demonology':10,
+			'convocation':0,
+		},
+		'convocationwing':{
+			'cost':10,
+			'defense':0,
+			'development':0,
+			'topography':0,
+			'demonology':0,
+			'convocation':10,
+		},
+
+
+	'generators':{
+		'managenerator':{
+			'spanishname':'Generador de maná',
+			'spanishdescription':'Concentra energía para activar hechizos. Genera 10 puntos de maná por turno. El maná no usado se acumula para turnos siguientes.'
+			'englishname':'Mana generator',
+			'englishdescription':'Gathers energy to activate spells. It generates 10 mana points each turn. Unused mana can be stored for next turns.'
+			'domelement':'querySelector('#managenerator')',
+			'cost':15,
+			'state':'nonbuilt',
+			'prerequisite':'none',
+			'preview':'images/previews/managenerator.jpg',
+			'defense':0,
+			'development':0,
+			'topography':0,
+			'demonology':0,
+			'convocation':0,
+			'mana':'10',
+		},
+		'manacondenser':{
+			'name':'Condensador de maná',
+			'domelement':'querySelector('#manacondenser')',
+			'cost':15,
+			'state':'nonbuilt',
+			'prerequisite':'managenerator',
+			'preview':'images/previews/manacondenser.jpg',
+			'defense':0,
+			'development':0,
+			'topography':0,
+			'demonology':0,
+			'convocation':0,
+			'mana':'10',
+		},
+		'manafocalizer':{
+			'name':'Condensador de maná',
+			'domelement':'querySelector('#manacondenser')',
+			'cost':15,
+			'state':'nonbuilt',
+			'prerequisite':'managenerator',
+			'preview':'images/previews/manacondenser.jpg',
+			'defense':0,
+			'development':0,
+			'topography':0,
+			'demonology':0,
+			'convocation':0,
+			'mana':'10',
+		},
+	},
+};
+
+
+
+function build(building){
+	document.building.style.display="initial";
+}
+
+
+</script>
+</body>
+</html>
